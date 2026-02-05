@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Knife Simulator - FPS</title>
+    <title>Knife Simulator 3D - FPS</title>
     <style>
         * {
             margin: 0;
@@ -19,7 +19,6 @@
 
         #gameCanvas {
             display: block;
-            background: #1a1a1a;
         }
 
         #hud {
@@ -30,7 +29,7 @@
             height: 100%;
             pointer-events: none;
             color: white;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
         }
 
         #crosshair {
@@ -38,38 +37,43 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.8);
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 50%;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8),
+                        0 0 3px rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(0, 0, 0, 0.5);
         }
 
         #weaponInfo {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
-            font-size: 24px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px 25px;
-            border-radius: 10px;
+            bottom: 40px;
+            right: 40px;
+            font-size: 28px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 30px;
+            border-radius: 12px;
             border: 3px solid #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
         }
 
         #controls {
             position: absolute;
             top: 30px;
             left: 30px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            border-radius: 12px;
             border: 3px solid #ffaa00;
-            font-size: 14px;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         #controls h3 {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: #ffaa00;
+            font-size: 20px;
         }
 
         #instructions {
@@ -77,40 +81,44 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.9);
-            padding: 40px;
-            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 50px;
+            border-radius: 20px;
             text-align: center;
-            border: 4px solid #00ffff;
+            border: 5px solid #00ffff;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.5);
         }
 
         #instructions h1 {
             color: #00ffff;
-            margin-bottom: 20px;
-            font-size: 36px;
+            margin-bottom: 25px;
+            font-size: 42px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
         }
 
         #instructions p {
-            margin: 10px 0;
+            margin: 12px 0;
             font-size: 18px;
         }
 
         #startBtn {
             pointer-events: all;
-            margin-top: 20px;
-            padding: 15px 40px;
-            font-size: 20px;
-            background: #00ffff;
+            margin-top: 25px;
+            padding: 18px 50px;
+            font-size: 22px;
+            background: linear-gradient(135deg, #00ffff, #0088ff);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.4);
         }
 
         #startBtn:hover {
-            background: #00cccc;
+            background: linear-gradient(135deg, #00cccc, #0066cc);
             transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0, 255, 255, 0.6);
         }
 
         .hidden {
@@ -119,410 +127,437 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <div id="gameCanvas"></div>
     
     <div id="hud">
         <div id="crosshair"></div>
         
         <div id="weaponInfo">
-            🔪 Arme: <span id="weaponName">Karambit</span>
+            🔪 <span id="weaponName">Karambit</span>
         </div>
 
         <div id="controls">
             <h3>🎮 CONTRÔLES</h3>
-            <p>🖱️ Souris = Regarder autour</p>
+            <p>🖱️ Souris = Regarder</p>
             <p>⌨️ ZQSD / WASD = Déplacer</p>
+            <p>⌨️ SHIFT = Courir</p>
             <p>🖱️ Clic Gauche = Attaque</p>
             <p>🖱️ Clic Droit = Inspecter</p>
             <p>⌨️ 1 = Karambit</p>
             <p>⌨️ 2 = Papillon</p>
-            <p>⌨️ F = Animation flip</p>
+            <p>⌨️ F = Flip animation</p>
         </div>
 
         <div id="instructions">
-            <h1>🔪 KNIFE SIMULATOR 🔪</h1>
-            <p>Explorez et jouez avec vos couteaux !</p>
-            <p>Changez d'arme et testez les animations</p>
+            <h1>🔪 KNIFE SIMULATOR 3D 🔪</h1>
+            <p>Explorez le monde 3D avec vos couteaux !</p>
+            <p>Animations réalistes et graphismes avancés</p>
             <button id="startBtn">COMMENCER</button>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        // Variables du jeu
+        // Configuration de base
+        let scene, camera, renderer;
         let gameActive = false;
-        let mouseX = 0;
-        let mouseY = 0;
-        let cameraYaw = 0;
-        let cameraPitch = 0;
-        let isPointerLocked = false;
-
-        // Position du joueur
+        
+        // Objets du jeu
+        let ground, rightArm, leftArm, currentKnife;
+        let karambitKnife, butterflyKnife;
+        
+        // Contrôles
+        const keys = {};
+        let mouseX = 0, mouseY = 0;
+        let yaw = 0, pitch = 0;
+        
+        // Animations
+        let walkCycle = 0;
+        let attackAnim = 0;
+        let inspectAnim = 0;
+        let flipAnim = 0;
+        
+        // Joueur
         const player = {
-            x: 0,
-            y: 1.7, // Hauteur des yeux (1.7m)
-            z: 0,
-            vx: 0,
-            vz: 0,
-            speed: 0.1
+            position: new THREE.Vector3(0, 2, 5),
+            velocity: new THREE.Vector3(0, 0, 0),
+            speed: 0.1,
+            sprintMultiplier: 1.8
         };
 
-        // Touches enfoncées
-        const keys = {};
+        // Initialisation
+        function init() {
+            // Scène
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB);
+            scene.fog = new THREE.Fog(0x87CEEB, 50, 200);
 
-        // État de l'arme
-        let currentWeapon = 'karambit';
-        let attackAnimation = 0;
-        let inspectAnimation = 0;
-        let flipAnimation = 0;
-        let weaponBob = 0;
+            // Caméra
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.copy(player.position);
 
-        // Démarrage du jeu
-        document.getElementById('startBtn').addEventListener('click', () => {
-            document.getElementById('instructions').classList.add('hidden');
-            canvas.requestPointerLock();
-        });
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('gameCanvas').appendChild(renderer.domElement);
 
-        // Verrouillage du pointeur
-        document.addEventListener('pointerlockchange', () => {
-            isPointerLocked = document.pointerLockElement === canvas;
-            if (isPointerLocked) {
-                gameActive = true;
-            }
-        });
+            // Lumières
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
 
-        // Mouvement de la souris
-        document.addEventListener('mousemove', (e) => {
-            if (!isPointerLocked) return;
-            
-            cameraYaw -= e.movementX * 0.002;
-            cameraPitch -= e.movementY * 0.002;
-            cameraPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraPitch));
-        });
+            const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            sunLight.position.set(50, 100, 50);
+            sunLight.castShadow = true;
+            sunLight.shadow.camera.left = -100;
+            sunLight.shadow.camera.right = 100;
+            sunLight.shadow.camera.top = 100;
+            sunLight.shadow.camera.bottom = -100;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            scene.add(sunLight);
 
-        // Clics de souris
-        canvas.addEventListener('mousedown', (e) => {
-            if (!gameActive) return;
-            
-            if (e.button === 0) { // Clic gauche
-                attackAnimation = 1;
-            } else if (e.button === 2) { // Clic droit
-                inspectAnimation = 1;
-            }
-        });
+            // Sol - Base plate
+            const groundGeometry = new THREE.PlaneGeometry(200, 200);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x4a4a4a,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
 
-        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+            // Grille sur le sol
+            const gridHelper = new THREE.GridHelper(200, 100, 0x000000, 0x333333);
+            scene.add(gridHelper);
 
-        // Événements clavier
-        document.addEventListener('keydown', (e) => {
-            keys[e.key.toLowerCase()] = true;
-            
-            if (e.key === '1') {
-                currentWeapon = 'karambit';
+            // Créer les bras R6
+            createArms();
+
+            // Créer les couteaux
+            createKnives();
+
+            // Événements
+            setupEvents();
+
+            // Démarrer l'animation
+            animate();
+        }
+
+        // Créer les bras style Roblox R6
+        function createArms() {
+            const armGroup = new THREE.Group();
+
+            // Matériau pour la peau
+            const skinMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xf4c2a0,
+                roughness: 0.7
+            });
+
+            // Bras droit
+            const rightArmGeometry = new THREE.BoxGeometry(0.15, 0.5, 0.15);
+            rightArm = new THREE.Mesh(rightArmGeometry, skinMaterial);
+            rightArm.castShadow = true;
+            armGroup.add(rightArm);
+
+            // Avant-bras droit
+            const rightForearmGeometry = new THREE.BoxGeometry(0.14, 0.4, 0.14);
+            const rightForearm = new THREE.Mesh(rightForearmGeometry, skinMaterial);
+            rightForearm.position.set(0, -0.45, 0);
+            rightForearm.castShadow = true;
+            rightArm.add(rightForearm);
+
+            // Main droite
+            const rightHandGeometry = new THREE.BoxGeometry(0.12, 0.15, 0.12);
+            const rightHand = new THREE.Mesh(rightHandGeometry, skinMaterial);
+            rightHand.position.set(0, -0.28, 0);
+            rightHand.castShadow = true;
+            rightForearm.add(rightHand);
+
+            // Bras gauche (plus simple, en arrière)
+            const leftArmGeometry = new THREE.BoxGeometry(0.15, 0.5, 0.15);
+            leftArm = new THREE.Mesh(leftArmGeometry, skinMaterial);
+            leftArm.castShadow = true;
+            leftArm.position.set(-0.3, -0.1, 0.2);
+            armGroup.add(leftArm);
+
+            // Positionner le groupe de bras
+            armGroup.position.set(0.3, -0.3, -0.5);
+            camera.add(armGroup);
+            scene.add(camera);
+        }
+
+        // Créer les couteaux
+        function createKnives() {
+            // Karambit
+            karambitKnife = new THREE.Group();
+
+            // Lame du Karambit (courbée)
+            const bladeCurve = new THREE.Shape();
+            bladeCurve.moveTo(0, 0);
+            bladeCurve.quadraticCurveTo(0.15, -0.05, 0.25, -0.15);
+            bladeCurve.lineTo(0.23, -0.17);
+            bladeCurve.quadraticCurveTo(0.13, -0.07, 0, -0.02);
+            bladeCurve.closePath();
+
+            const bladeGeometry = new THREE.ExtrudeGeometry(bladeCurve, {
+                depth: 0.01,
+                bevelEnabled: false
+            });
+
+            const bladeMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xcccccc,
+                metalness: 0.9,
+                roughness: 0.1
+            });
+
+            const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
+            blade.castShadow = true;
+            karambitKnife.add(blade);
+
+            // Manche du Karambit
+            const handleGeometry = new THREE.BoxGeometry(0.12, 0.04, 0.02);
+            const handleMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xff4400,
+                roughness: 0.6
+            });
+            const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.position.set(-0.06, 0, 0);
+            handle.castShadow = true;
+            karambitKnife.add(handle);
+
+            // Anneau du Karambit
+            const ringGeometry = new THREE.TorusGeometry(0.03, 0.008, 8, 16);
+            const ringMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x666666,
+                metalness: 0.7
+            });
+            const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+            ring.position.set(-0.12, 0, 0);
+            ring.rotation.y = Math.PI / 2;
+            karambitKnife.add(ring);
+
+            // Papillon (Butterfly)
+            butterflyKnife = new THREE.Group();
+
+            // Lame du Papillon
+            const butterflyBladeGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.01);
+            const butterflyBlade = new THREE.Mesh(butterflyBladeGeometry, bladeMaterial);
+            butterflyBlade.castShadow = true;
+            butterflyKnife.add(butterflyBlade);
+
+            // Manche gauche
+            const leftHandleGeometry = new THREE.BoxGeometry(0.015, 0.12, 0.025);
+            const leftHandleMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x0088ff,
+                metalness: 0.5,
+                roughness: 0.4
+            });
+            const leftHandle = new THREE.Mesh(leftHandleGeometry, leftHandleMaterial);
+            leftHandle.position.set(-0.02, -0.18, 0);
+            leftHandle.castShadow = true;
+            butterflyKnife.add(leftHandle);
+            butterflyKnife.userData.leftHandle = leftHandle;
+
+            // Manche droit
+            const rightHandleGeometry = new THREE.BoxGeometry(0.015, 0.12, 0.025);
+            const rightHandleMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x00ccff,
+                metalness: 0.5,
+                roughness: 0.4
+            });
+            const rightHandle = new THREE.Mesh(rightHandleGeometry, rightHandleMaterial);
+            rightHandle.position.set(0.02, -0.18, 0);
+            rightHandle.castShadow = true;
+            butterflyKnife.add(rightHandle);
+            butterflyKnife.userData.rightHandle = rightHandle;
+
+            // Positionner les couteaux
+            karambitKnife.position.set(0, -0.25, 0);
+            butterflyKnife.position.set(0, -0.25, 0);
+
+            rightArm.children[0].add(karambitKnife);
+            currentKnife = karambitKnife;
+            butterflyKnife.visible = false;
+        }
+
+        // Configuration des événements
+        function setupEvents() {
+            document.getElementById('startBtn').addEventListener('click', () => {
+                document.getElementById('instructions').classList.add('hidden');
+                renderer.domElement.requestPointerLock();
+            });
+
+            document.addEventListener('pointerlockchange', () => {
+                gameActive = document.pointerLockElement === renderer.domElement;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!gameActive) return;
+                
+                mouseX = e.movementX || 0;
+                mouseY = e.movementY || 0;
+                
+                yaw -= mouseX * 0.002;
+                pitch -= mouseY * 0.002;
+                pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
+            });
+
+            document.addEventListener('mousedown', (e) => {
+                if (!gameActive) return;
+                
+                if (e.button === 0) {
+                    attackAnim = 1;
+                } else if (e.button === 2) {
+                    inspectAnim = 1;
+                }
+            });
+
+            renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+
+            document.addEventListener('keydown', (e) => {
+                keys[e.key.toLowerCase()] = true;
+                
+                if (e.key === '1') {
+                    switchWeapon('karambit');
+                } else if (e.key === '2') {
+                    switchWeapon('butterfly');
+                } else if (e.key.toLowerCase() === 'f') {
+                    flipAnim = 1;
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                keys[e.key.toLowerCase()] = false;
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // Changer d'arme
+        function switchWeapon(weapon) {
+            if (weapon === 'karambit') {
+                karambitKnife.visible = true;
+                butterflyKnife.visible = false;
+                currentKnife = karambitKnife;
                 document.getElementById('weaponName').textContent = 'Karambit';
-            } else if (e.key === '2') {
-                currentWeapon = 'butterfly';
+            } else if (weapon === 'butterfly') {
+                karambitKnife.visible = false;
+                butterflyKnife.visible = true;
+                currentKnife = butterflyKnife;
                 document.getElementById('weaponName').textContent = 'Papillon';
-            } else if (e.key.toLowerCase() === 'f') {
-                flipAnimation = 1;
             }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            keys[e.key.toLowerCase()] = false;
-        });
+        }
 
         // Mise à jour du mouvement
         function updateMovement() {
             let moveX = 0;
             let moveZ = 0;
 
-            if (keys['z'] || keys['w']) moveZ -= 1;
-            if (keys['s']) moveZ += 1;
-            if (keys['q'] || keys['a']) moveX -= 1;
-            if (keys['d']) moveX += 1;
+            if (keys['z'] || keys['w']) moveZ = 1;
+            if (keys['s']) moveZ = -1;
+            if (keys['q'] || keys['a']) moveX = 1;
+            if (keys['d']) moveX = -1;
 
             if (moveX !== 0 || moveZ !== 0) {
-                const angle = cameraYaw;
-                player.vx = (moveX * Math.cos(angle) - moveZ * Math.sin(angle)) * player.speed;
-                player.vz = (moveX * Math.sin(angle) + moveZ * Math.cos(angle)) * player.speed;
-                weaponBob += 0.2;
-            } else {
-                player.vx *= 0.8;
-                player.vz *= 0.8;
-            }
-
-            player.x += player.vx;
-            player.z += player.vz;
-        }
-
-        // Dessiner le sol
-        function drawGround() {
-            const gridSize = 50;
-            const cellSize = 2;
-
-            ctx.fillStyle = '#2a2a2a';
-            ctx.fillRect(0, canvas.height / 2, canvas.width, canvas.height / 2);
-
-            ctx.strokeStyle = '#444';
-            ctx.lineWidth = 1;
-
-            for (let x = -gridSize; x <= gridSize; x++) {
-                const screenX = projectX(x * cellSize, 0, 0);
-                const screenY1 = projectY(x * cellSize, 0, -gridSize * cellSize);
-                const screenY2 = projectY(x * cellSize, 0, gridSize * cellSize);
+                const speed = keys['shift'] ? player.speed * player.sprintMultiplier : player.speed;
                 
-                ctx.beginPath();
-                ctx.moveTo(screenX, screenY1);
-                ctx.lineTo(screenX, screenY2);
-                ctx.stroke();
-            }
-
-            for (let z = -gridSize; z <= gridSize; z++) {
-                const screenY = projectY(0, 0, z * cellSize);
-                const screenX1 = projectX(-gridSize * cellSize, 0, z * cellSize);
-                const screenX2 = projectX(gridSize * cellSize, 0, z * cellSize);
+                const forward = new THREE.Vector3(
+                    Math.sin(yaw) * moveZ,
+                    0,
+                    Math.cos(yaw) * moveZ
+                );
                 
-                ctx.beginPath();
-                ctx.moveTo(screenX1, screenY);
-                ctx.lineTo(screenX2, screenY);
-                ctx.stroke();
-            }
-        }
+                const right = new THREE.Vector3(
+                    Math.sin(yaw + Math.PI / 2) * moveX,
+                    0,
+                    Math.cos(yaw + Math.PI / 2) * moveX
+                );
 
-        // Projection simple
-        function projectX(x, y, z) {
-            const rx = x - player.x;
-            const ry = y - player.y;
-            const rz = z - player.z;
-
-            const rotX = rx * Math.cos(cameraYaw) - rz * Math.sin(cameraYaw);
-            const rotZ = rx * Math.sin(cameraYaw) + rz * Math.cos(cameraYaw);
-
-            return canvas.width / 2 + (rotX / rotZ) * 500;
-        }
-
-        function projectY(x, y, z) {
-            const rx = x - player.x;
-            const ry = y - player.y;
-            const rz = z - player.z;
-
-            const rotX = rx * Math.cos(cameraYaw) - rz * Math.sin(cameraYaw);
-            const rotZ = rx * Math.sin(cameraYaw) + rz * Math.cos(cameraYaw);
-            const rotY = ry * Math.cos(cameraPitch) - rotZ * Math.sin(cameraPitch);
-
-            return canvas.height / 2 - (rotY / rotZ) * 500;
-        }
-
-        // Dessiner la main
-        function drawHand(offsetX, offsetY) {
-            const baseX = canvas.width * 0.7 + offsetX;
-            const baseY = canvas.height * 0.6 + offsetY;
-
-            // Bras
-            ctx.fillStyle = '#d4a574';
-            ctx.fillRect(baseX + 60, baseY + 80, 40, 120);
-
-            // Main
-            ctx.beginPath();
-            ctx.ellipse(baseX + 80, baseY + 70, 35, 45, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Doigts
-            for (let i = 0; i < 4; i++) {
-                ctx.fillRect(baseX + 50 + i * 15, baseY + 30 + i * 5, 12, 40);
+                player.velocity.add(forward.multiplyScalar(speed));
+                player.velocity.add(right.multiplyScalar(speed));
+                
+                walkCycle += keys['shift'] ? 0.3 : 0.15;
             }
 
-            // Pouce
-            ctx.save();
-            ctx.translate(baseX + 110, baseY + 70);
-            ctx.rotate(-0.5);
-            ctx.fillRect(0, 0, 12, 35);
-            ctx.restore();
-        }
-
-        // Dessiner le Karambit
-        function drawKarambit(offsetX, offsetY, rotation) {
-            const baseX = canvas.width * 0.7 + offsetX;
-            const baseY = canvas.height * 0.6 + offsetY;
-
-            ctx.save();
-            ctx.translate(baseX + 70, baseY + 50);
-            ctx.rotate(rotation);
-
-            // Anneau
-            ctx.strokeStyle = '#888';
-            ctx.lineWidth = 8;
-            ctx.beginPath();
-            ctx.arc(-30, -20, 15, 0, Math.PI * 2);
-            ctx.stroke();
-
-            // Manche
-            ctx.fillStyle = '#2c2c2c';
-            ctx.fillRect(-30, -10, 50, 20);
+            player.velocity.multiplyScalar(0.85);
+            player.position.add(player.velocity);
             
-            ctx.fillStyle = '#ff6600';
-            for (let i = 0; i < 5; i++) {
-                ctx.fillRect(-25 + i * 10, -8, 8, 16);
-            }
-
-            // Lame courbée
-            ctx.fillStyle = '#c0c0c0';
-            ctx.beginPath();
-            ctx.moveTo(20, 0);
-            ctx.quadraticCurveTo(50, -15, 70, -40);
-            ctx.lineTo(65, -45);
-            ctx.quadraticCurveTo(45, -20, 20, -5);
-            ctx.closePath();
-            ctx.fill();
-
-            // Reflet de la lame
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.beginPath();
-            ctx.moveTo(25, -2);
-            ctx.quadraticCurveTo(50, -17, 68, -42);
-            ctx.lineTo(67, -43);
-            ctx.quadraticCurveTo(48, -18, 25, -3);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.restore();
+            camera.position.copy(player.position);
+            camera.rotation.set(pitch, yaw, 0, 'YXZ');
         }
 
-        // Dessiner le Papillon
-        function drawButterfly(offsetX, offsetY, rotation, openAngle) {
-            const baseX = canvas.width * 0.7 + offsetX;
-            const baseY = canvas.height * 0.6 + offsetY;
-
-            ctx.save();
-            ctx.translate(baseX + 70, baseY + 50);
-            ctx.rotate(rotation);
-
-            // Lame centrale
-            ctx.fillStyle = '#c0c0c0';
-            ctx.fillRect(-5, -60, 10, 80);
-            
-            // Pointe
-            ctx.beginPath();
-            ctx.moveTo(-5, -60);
-            ctx.lineTo(0, -80);
-            ctx.lineTo(5, -60);
-            ctx.closePath();
-            ctx.fill();
-
-            // Reflet
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.fillRect(-3, -60, 3, 80);
-
-            // Manche gauche
-            ctx.save();
-            ctx.translate(-5, 0);
-            ctx.rotate(-openAngle);
-            ctx.fillStyle = '#1a1a1a';
-            ctx.fillRect(-30, -10, 35, 20);
-            ctx.fillStyle = '#00ccff';
-            for (let i = 0; i < 3; i++) {
-                ctx.fillRect(-28 + i * 10, -8, 8, 16);
-            }
-            ctx.restore();
-
-            // Manche droit
-            ctx.save();
-            ctx.translate(5, 0);
-            ctx.rotate(openAngle);
-            ctx.fillStyle = '#1a1a1a';
-            ctx.fillRect(-5, -10, 35, 20);
-            ctx.fillStyle = '#00ccff';
-            for (let i = 0; i < 3; i++) {
-                ctx.fillRect(-3 + i * 10, -8, 8, 16);
-            }
-            ctx.restore();
-
-            ctx.restore();
-        }
-
-        // Mettre à jour les animations
+        // Mise à jour des animations
         function updateAnimations() {
-            if (attackAnimation > 0) {
-                attackAnimation -= 0.05;
-                if (attackAnimation < 0) attackAnimation = 0;
+            // Animation de marche
+            const bobAmount = player.velocity.length();
+            rightArm.rotation.x = Math.sin(walkCycle) * bobAmount * 0.5;
+            leftArm.rotation.x = -Math.sin(walkCycle) * bobAmount * 0.5;
+
+            // Animation d'attaque
+            if (attackAnim > 0) {
+                const progress = 1 - attackAnim;
+                rightArm.rotation.z = Math.sin(progress * Math.PI) * 0.8;
+                rightArm.position.x = 0.3 - Math.sin(progress * Math.PI) * 0.2;
+                attackAnim -= 0.05;
+                if (attackAnim < 0) attackAnim = 0;
+            } else {
+                rightArm.rotation.z = 0;
+                rightArm.position.x = 0.3;
             }
 
-            if (inspectAnimation > 0) {
-                inspectAnimation -= 0.02;
-                if (inspectAnimation < 0) inspectAnimation = 0;
+            // Animation d'inspection
+            if (inspectAnim > 0) {
+                currentKnife.rotation.y = Math.sin(inspectAnim * Math.PI) * Math.PI * 2;
+                rightArm.rotation.y = Math.sin(inspectAnim * Math.PI) * 0.5;
+                inspectAnim -= 0.015;
+                if (inspectAnim < 0) inspectAnim = 0;
+            } else {
+                currentKnife.rotation.y = 0;
+                rightArm.rotation.y = 0;
             }
 
-            if (flipAnimation > 0) {
-                flipAnimation -= 0.03;
-                if (flipAnimation < 0) flipAnimation = 0;
+            // Animation flip
+            if (flipAnim > 0) {
+                const progress = 1 - flipAnim;
+                currentKnife.rotation.z = progress * Math.PI * 4;
+                currentKnife.position.y = -0.25 + Math.sin(progress * Math.PI) * 0.3;
+                flipAnim -= 0.025;
+                if (flipAnim < 0) flipAnim = 0;
+            } else {
+                currentKnife.rotation.z = 0;
+                currentKnife.position.y = -0.25;
+            }
+
+            // Animation papillon (ouverture des manches)
+            if (currentKnife === butterflyKnife) {
+                const openAngle = inspectAnim > 0 ? Math.PI / 3 : 0;
+                butterflyKnife.userData.leftHandle.rotation.x = -openAngle;
+                butterflyKnife.userData.rightHandle.rotation.x = openAngle;
             }
         }
 
-        // Boucle de rendu
-        function render() {
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillRect(0, 0, canvas.width, canvas.height / 2);
-            
-            drawGround();
+        // Boucle d'animation
+        function animate() {
+            requestAnimationFrame(animate);
 
             if (gameActive) {
                 updateMovement();
                 updateAnimations();
-
-                const bobOffset = Math.sin(weaponBob) * 5;
-                let offsetX = bobOffset;
-                let offsetY = bobOffset;
-                let rotation = 0;
-                let openAngle = 0;
-
-                // Animation d'attaque
-                if (attackAnimation > 0) {
-                    const progress = 1 - attackAnimation;
-                    offsetX += Math.sin(progress * Math.PI) * -100;
-                    rotation += Math.sin(progress * Math.PI) * 1.5;
-                }
-
-                // Animation d'inspection
-                if (inspectAnimation > 0) {
-                    const progress = Math.sin(inspectAnimation * Math.PI);
-                    rotation += progress * Math.PI * 2;
-                    offsetX -= progress * 100;
-                }
-
-                // Animation flip
-                if (flipAnimation > 0) {
-                    rotation += (1 - flipAnimation) * Math.PI * 4;
-                    offsetY += Math.sin((1 - flipAnimation) * Math.PI) * 50;
-                }
-
-                drawHand(offsetX, offsetY);
-
-                if (currentWeapon === 'karambit') {
-                    drawKarambit(offsetX, offsetY, rotation);
-                } else if (currentWeapon === 'butterfly') {
-                    openAngle = inspectAnimation > 0 ? Math.PI / 3 : 0;
-                    if (flipAnimation > 0) {
-                        openAngle = Math.PI / 2;
-                    }
-                    drawButterfly(offsetX, offsetY, rotation, openAngle);
-                }
             }
 
-            requestAnimationFrame(render);
+            renderer.render(scene, camera);
         }
 
-        render();
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
+        // Démarrer
+        init();
     </script>
 </body>
 </html>
