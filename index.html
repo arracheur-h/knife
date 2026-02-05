@@ -375,11 +375,19 @@
             butterflyKnife.add(rightHandle);
             butterflyKnife.userData.rightHandle = rightHandle;
 
-            // Positionner les couteaux
-            karambitKnife.position.set(0, -0.25, 0);
-            butterflyKnife.position.set(0, -0.25, 0);
+            // Positionner les couteaux dans la main
+            karambitKnife.position.set(0, -0.35, 0);
+            karambitKnife.rotation.x = Math.PI / 4;
+            karambitKnife.rotation.z = -Math.PI / 6;
+            
+            butterflyKnife.position.set(0, -0.35, 0);
+            butterflyKnife.rotation.x = Math.PI / 4;
 
-            rightArm.children[0].add(karambitKnife);
+            // Ajouter les couteaux à la main (rightForearm -> rightHand)
+            const rightHand = rightArm.children[0].children[0];
+            rightHand.add(karambitKnife);
+            rightHand.add(butterflyKnife);
+            
             currentKnife = karambitKnife;
             butterflyKnife.visible = false;
         }
@@ -461,10 +469,11 @@
             let moveX = 0;
             let moveZ = 0;
 
-            if (keys['z'] || keys['w']) moveZ = 1;
-            if (keys['s']) moveZ = -1;
-            if (keys['q'] || keys['a']) moveX = 1;
-            if (keys['d']) moveX = -1;
+            // Touches inversées
+            if (keys['z'] || keys['w']) moveZ = -1; // Z = reculer
+            if (keys['s']) moveZ = 1; // S = avancer
+            if (keys['q'] || keys['a']) moveX = -1; // Q = gauche
+            if (keys['d']) moveX = 1; // D = droite
 
             if (moveX !== 0 || moveZ !== 0) {
                 const speed = keys['shift'] ? player.speed * player.sprintMultiplier : player.speed;
@@ -528,12 +537,12 @@
             if (flipAnim > 0) {
                 const progress = 1 - flipAnim;
                 currentKnife.rotation.z = progress * Math.PI * 4;
-                currentKnife.position.y = -0.25 + Math.sin(progress * Math.PI) * 0.3;
+                currentKnife.position.y = -0.35 + Math.sin(progress * Math.PI) * 0.3;
                 flipAnim -= 0.025;
                 if (flipAnim < 0) flipAnim = 0;
             } else {
                 currentKnife.rotation.z = 0;
-                currentKnife.position.y = -0.25;
+                currentKnife.position.y = -0.35;
             }
 
             // Animation papillon (ouverture des manches)
