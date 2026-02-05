@@ -609,71 +609,147 @@
 
         // Mise à jour des animations
         function updateAnimations() {
-            // Animation de marche
-            const bobAmount = player.velocity.length();
-            rightArm.rotation.x = Math.sin(walkCycle) * bobAmount * 0.5;
-            leftArm.rotation.x = -Math.sin(walkCycle) * bobAmount * 0.5;
-            
-            // Faire suivre le groupe de couteaux avec le bras
             const knifeGroup = rightArm.userData.knifeGroup;
-            knifeGroup.rotation.x = rightArm.rotation.x * 0.5;
+            
+            // Animation de marche - bobbing naturel
+            const bobAmount = player.velocity.length();
+            if (bobAmount > 0.01) {
+                const walkBob = Math.sin(walkCycle) * bobAmount * 2;
+                const walkSway = Math.cos(walkCycle * 0.5) * bobAmount * 1.5;
+                
+                // Mouvement du bras
+                rightArm.rotation.x = walkBob * 0.3;
+                rightArm.rotation.z = walkSway * 0.2;
+                rightArm.position.y = -0.4 + Math.abs(walkBob) * 0.05;
+                
+                leftArm.rotation.x = -walkBob * 0.3;
+                
+                // Mouvement du couteau
+                knifeGroup.rotation.x = walkBob * 0.2;
+                knifeGroup.rotation.z = walkSway * 0.15;
+                knifeGroup.position.y = -0.65 + Math.abs(walkBob) * 0.03;
+            } else {
+                // Position de repos (idle breathing)
+                const idleTime = Date.now() * 0.001;
+                const breathe = Math.sin(idleTime * 1.5) * 0.015;
+                
+                rightArm.rotation.x = breathe;
+                rightArm.rotation.z = 0;
+                rightArm.position.y = -0.4 + breathe * 0.5;
+                
+                knifeGroup.rotation.x = breathe * 0.5;
+                knifeGroup.position.y = -0.65 + breathe * 0.3;
+            }
 
-            // Animation d'attaque
+            // Animation d'attaque - slash rapide
             if (attackAnim > 0) {
                 const progress = 1 - attackAnim;
-                rightArm.rotation.z = Math.sin(progress * Math.PI) * 0.8;
-                rightArm.position.x = 0.4 - Math.sin(progress * Math.PI) * 0.2;
+                const attackCurve = Math.sin(progress * Math.PI);
                 
-                knifeGroup.rotation.z = Math.sin(progress * Math.PI) * 0.5;
-                knifeGroup.position.x = 0.5 - Math.sin(progress * Math.PI) * 0.15;
+                // Mouvement de slash diagonal
+                rightArm.rotation.z = attackCurve * 1.2;
+                rightArm.rotation.y = -attackCurve * 0.5;
+                rightArm.position.x = 0.4 - attackCurve * 0.3;
+                rightArm.position.y = -0.4 + attackCurve * 0.2;
                 
-                attackAnim -= 0.05;
+                // Couteau suit le mouvement
+                knifeGroup.rotation.z = attackCurve * 0.8;
+                knifeGroup.rotation.x = -attackCurve * 0.4;
+                knifeGroup.position.x = 0.5 - attackCurve * 0.25;
+                knifeGroup.position.y = -0.65 + attackCurve * 0.15;
+                
+                attackAnim -= 0.08; // Plus rapide
                 if (attackAnim < 0) attackAnim = 0;
             } else {
-                rightArm.rotation.z = 0;
+                rightArm.rotation.y = 0;
                 rightArm.position.x = 0.4;
-                knifeGroup.rotation.z = 0;
                 knifeGroup.position.x = 0.5;
             }
 
-            // Animation d'inspection
+            // Animation d'inspection - rotation élégante
             if (inspectAnim > 0) {
-                currentKnife.rotation.y += 0.1; // Rotation continue
-                knifeGroup.rotation.y = Math.sin(inspectAnim * Math.PI) * 0.3;
-                inspectAnim -= 0.015;
+                const progress = inspectAnim;
+                const inspectSpin = Math.sin(progress * Math.PI);
+                
+                // Le bras se lève et tourne
+                rightArm.rotation.y = inspectSpin * 0.8;
+                rightArm.rotation.x = -0.3 + inspectSpin * 0.2;
+                rightArm.position.y = -0.4 + inspectSpin * 0.15;
+                rightArm.position.z = 0 - inspectSpin * 0.1;
+                
+                // Le couteau tourne sur lui-même
+                currentKnife.rotation.y += 0.08;
+                knifeGroup.rotation.y = inspectSpin * 0.5;
+                knifeGroup.position.z = -1.1 + inspectSpin * 0.1;
+                
+                inspectAnim -= 0.012;
                 if (inspectAnim < 0) inspectAnim = 0;
             } else {
+                rightArm.position.z = 0;
                 knifeGroup.rotation.y = 0;
+                knifeGroup.position.z = -1.1;
             }
 
-            // Animation flip
+            // Animation flip - lancer et rattraper
             if (flipAnim > 0) {
                 const progress = 1 - flipAnim;
+                const flipCurve = Math.sin(progress * Math.PI);
+                const spinSpeed = progress * Math.PI * 3; // 1.5 tours
                 
-                if (currentKnife === karambitKnife) {
-                    currentKnife.rotation.z = (Math.PI / 2 + Math.PI / 6) + (progress * Math.PI * 4);
+                // Le bras lance puis rattrape
+                if (progress < 0.3) {
+                    // Lancer
+                    rightArm.rotation.x = -0.5 * (progress / 0.3);
+                    knifeGroup.position.y = -0.65 + (progress / 0.3) * 0.3;
+                } else if (progress < 0.7) {
+                    // En l'air
+                    rightArm.rotation.x = -0.5 + ((progress - 0.3) / 0.4) * 0.8;
+                    knifeGroup.position.y = -0.35 + Math.sin((progress - 0.3) / 0.4 * Math.PI) * 0.2;
                 } else {
-                    currentKnife.rotation.z = progress * Math.PI * 4;
+                    // Rattraper
+                    rightArm.rotation.x = 0.3 - ((progress - 0.7) / 0.3) * 0.3;
+                    knifeGroup.position.y = -0.35 - ((progress - 0.7) / 0.3) * 0.3;
                 }
                 
-                currentKnife.position.y = (currentKnife === karambitKnife ? -0.05 : 0.05) + Math.sin(progress * Math.PI) * 0.3;
-                flipAnim -= 0.025;
-                if (flipAnim < 0) flipAnim = 0;
-            } else {
+                // Le couteau tourne rapidement
                 if (currentKnife === karambitKnife) {
-                    currentKnife.rotation.z = Math.PI / 2 + Math.PI / 6;
+                    currentKnife.rotation.z = (Math.PI / 2 + Math.PI / 6) + spinSpeed;
+                    currentKnife.rotation.x = Math.PI / 4 + spinSpeed * 0.5;
+                } else {
+                    currentKnife.rotation.z = spinSpeed;
+                    currentKnife.rotation.x = Math.PI / 6 + spinSpeed * 0.3;
+                }
+                
+                flipAnim -= 0.02;
+                if (flipAnim < 0) {
+                    flipAnim = 0;
+                    // Remettre en position normale
+                    if (currentKnife === karambitKnife) {
+                        currentKnife.rotation.z = Math.PI / 2 + Math.PI / 6;
+                        currentKnife.rotation.x = Math.PI / 4;
+                    } else {
+                        currentKnife.rotation.z = 0;
+                        currentKnife.rotation.x = Math.PI / 6;
+                    }
+                }
+            } else {
+                // Remettre positions de base
+                if (currentKnife === karambitKnife) {
                     currentKnife.position.y = -0.05;
                 } else {
-                    currentKnife.rotation.z = 0;
                     currentKnife.position.y = 0.05;
                 }
             }
 
-            // Animation papillon (ouverture des manches)
+            // Animation papillon - ouverture/fermeture des manches
             if (currentKnife === butterflyKnife) {
-                const openAngle = (inspectAnim > 0 || flipAnim > 0) ? Math.PI / 2 : 0;
-                butterflyKnife.userData.leftHandle.rotation.x = -openAngle;
-                butterflyKnife.userData.rightHandle.rotation.x = openAngle;
+                const targetAngle = (inspectAnim > 0 || flipAnim > 0) ? Math.PI / 2 : 0;
+                const currentLeftAngle = butterflyKnife.userData.leftHandle.rotation.x;
+                const currentRightAngle = butterflyKnife.userData.rightHandle.rotation.x;
+                
+                // Interpolation douce
+                butterflyKnife.userData.leftHandle.rotation.x += (-targetAngle - currentLeftAngle) * 0.15;
+                butterflyKnife.userData.rightHandle.rotation.x += (targetAngle - currentRightAngle) * 0.15;
             }
         }
 
