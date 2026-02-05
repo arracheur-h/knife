@@ -309,89 +309,72 @@
             // ============ KARAMBIT ============
             karambitKnife = new THREE.Group();
 
-            // Lame du Karambit (plus grande et détaillée)
+            // Lame du Karambit - forme courbée élégante
             const karambitBladeShape = new THREE.Shape();
             karambitBladeShape.moveTo(0, 0);
-            karambitBladeShape.lineTo(0.5, 0);
-            karambitBladeShape.quadraticCurveTo(0.7, -0.2, 0.8, -0.5);
-            karambitBladeShape.quadraticCurveTo(0.75, -0.55, 0.7, -0.52);
-            karambitBladeShape.quadraticCurveTo(0.6, -0.25, 0.45, -0.05);
-            karambitBladeShape.lineTo(0, -0.05);
+            karambitBladeShape.lineTo(0.3, 0);
+            karambitBladeShape.quadraticCurveTo(0.4, -0.1, 0.45, -0.25);
+            karambitBladeShape.quadraticCurveTo(0.42, -0.27, 0.37, -0.25);
+            karambitBladeShape.quadraticCurveTo(0.32, -0.12, 0.25, -0.03);
+            karambitBladeShape.lineTo(0, -0.02);
             karambitBladeShape.closePath();
 
             const extrudeSettings = {
-                depth: 0.02,
+                depth: 0.015,
                 bevelEnabled: true,
-                bevelThickness: 0.005,
-                bevelSize: 0.005,
-                bevelSegments: 3
+                bevelThickness: 0.003,
+                bevelSize: 0.003,
+                bevelSegments: 2
             };
 
             const karambitBladeGeometry = new THREE.ExtrudeGeometry(karambitBladeShape, extrudeSettings);
             const bladeMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xe0e0e0,
+                color: 0xdddddd,
                 metalness: 0.95,
-                roughness: 0.05,
-                emissive: 0x222222
+                roughness: 0.1,
+                emissive: 0x111111
             });
 
             const karambitBlade = new THREE.Mesh(karambitBladeGeometry, bladeMaterial);
             karambitBlade.castShadow = true;
             karambitKnife.add(karambitBlade);
 
-            // Tranchant brillant
-            const edgeGeometry = new THREE.PlaneGeometry(0.8, 0.01);
-            const edgeMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xffffff,
-                metalness: 1,
-                roughness: 0,
-                emissive: 0x444444
-            });
-            const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
-            edge.position.set(0.4, -0.27, 0.01);
-            edge.rotation.z = -0.6;
-            karambitKnife.add(edge);
-
-            // Manche du Karambit (plus gros et détaillé)
-            const handleGroup = new THREE.Group();
-            
-            const handleGeometry = new THREE.BoxGeometry(0.25, 0.08, 0.04);
+            // Manche du Karambit - compact et élégant
+            const handleGeometry = new THREE.BoxGeometry(0.15, 0.05, 0.025);
             const handleMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xff4400,
-                roughness: 0.5,
-                metalness: 0.3
+                color: 0xff5500,
+                roughness: 0.4,
+                metalness: 0.2
             });
             const mainHandle = new THREE.Mesh(handleGeometry, handleMaterial);
+            mainHandle.position.set(-0.075, 0, 0);
             mainHandle.castShadow = true;
-            handleGroup.add(mainHandle);
+            karambitKnife.add(mainHandle);
 
-            // Détails sur le manche (rainures)
+            // Rainures sur le manche
             const grooveMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x882200,
-                roughness: 0.7
+                color: 0x000000,
+                roughness: 0.8
             });
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 4; i++) {
                 const groove = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.03, 0.09, 0.045),
+                    new THREE.BoxGeometry(0.015, 0.052, 0.027),
                     grooveMaterial
                 );
-                groove.position.x = -0.1 + i * 0.05;
+                groove.position.set(-0.13 + i * 0.04, 0, 0);
                 groove.castShadow = true;
-                handleGroup.add(groove);
+                karambitKnife.add(groove);
             }
 
-            handleGroup.position.set(-0.12, 0, 0);
-            karambitKnife.add(handleGroup);
-
-            // Anneau du Karambit (plus gros)
-            const ringGeometry = new THREE.TorusGeometry(0.06, 0.015, 12, 24);
+            // Anneau du Karambit - proportionné
+            const ringGeometry = new THREE.TorusGeometry(0.04, 0.01, 10, 16);
             const ringMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x444444,
-                metalness: 0.9,
-                roughness: 0.2
+                color: 0x333333,
+                metalness: 0.8,
+                roughness: 0.3
             });
             const ring = new THREE.Mesh(ringGeometry, ringMaterial);
-            ring.position.set(-0.25, 0, 0);
+            ring.position.set(-0.15, 0, 0);
             ring.rotation.y = Math.PI / 2;
             ring.castShadow = true;
             karambitKnife.add(ring);
@@ -399,96 +382,112 @@
             // ============ PAPILLON (BUTTERFLY) ============
             butterflyKnife = new THREE.Group();
 
-            // Lame du Papillon (plus grande et détaillée)
-            const butterflyBladeGeometry = new THREE.BoxGeometry(0.04, 0.6, 0.02);
+            // Lame du Papillon - longue et fine
+            const butterflyBladeGeometry = new THREE.BoxGeometry(0.025, 0.4, 0.015);
             const butterflyBlade = new THREE.Mesh(butterflyBladeGeometry, bladeMaterial);
             butterflyBlade.castShadow = true;
             butterflyKnife.add(butterflyBlade);
 
             // Pointe de la lame
-            const tipGeometry = new THREE.ConeGeometry(0.02, 0.1, 4);
+            const tipGeometry = new THREE.ConeGeometry(0.012, 0.08, 4);
             const tip = new THREE.Mesh(tipGeometry, bladeMaterial);
-            tip.position.y = 0.35;
+            tip.position.y = 0.24;
             tip.rotation.x = Math.PI;
             tip.castShadow = true;
             butterflyKnife.add(tip);
 
-            // Tranchant de la lame
-            const butterflyEdgeGeometry = new THREE.PlaneGeometry(0.6, 0.008);
-            const butterflyEdge = new THREE.Mesh(butterflyEdgeGeometry, edgeMaterial);
-            butterflyEdge.position.set(0.022, 0, 0);
-            butterflyKnife.add(butterflyEdge);
+            // Tranchant brillant
+            const edgeMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffffff,
+                metalness: 1,
+                roughness: 0,
+                emissive: 0x222222
+            });
+            const butterflyEdge = new THREE.PlaneGeometry(0.4, 0.005);
+            const edge = new THREE.Mesh(butterflyEdge, edgeMaterial);
+            edge.position.set(0.013, 0, 0);
+            butterflyKnife.add(edge);
 
-            // Manche gauche (bleu)
+            // Manche gauche (bleu foncé)
             const leftHandleGroup = new THREE.Group();
-            const leftHandleGeometry = new THREE.BoxGeometry(0.03, 0.25, 0.05);
+            const leftHandleGeometry = new THREE.BoxGeometry(0.02, 0.18, 0.035);
             const leftHandleMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x0099ff,
-                metalness: 0.6,
-                roughness: 0.3
+                color: 0x0066cc,
+                metalness: 0.5,
+                roughness: 0.4
             });
             const leftHandleMain = new THREE.Mesh(leftHandleGeometry, leftHandleMaterial);
             leftHandleMain.castShadow = true;
             leftHandleGroup.add(leftHandleMain);
 
             // Détails manche gauche
-            for (let i = 0; i < 4; i++) {
+            const detailMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x004499,
+                metalness: 0.6,
+                roughness: 0.3
+            });
+            for (let i = 0; i < 3; i++) {
                 const detail = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.035, 0.04, 0.052),
-                    new THREE.MeshStandardMaterial({ color: 0x006699, metalness: 0.7, roughness: 0.2 })
+                    new THREE.BoxGeometry(0.022, 0.03, 0.037),
+                    detailMaterial
                 );
-                detail.position.y = -0.08 + i * 0.05;
+                detail.position.y = -0.06 + i * 0.06;
                 detail.castShadow = true;
                 leftHandleGroup.add(detail);
             }
 
-            leftHandleGroup.position.set(-0.04, -0.35, 0);
+            leftHandleGroup.position.set(-0.025, -0.25, 0);
             butterflyKnife.add(leftHandleGroup);
             butterflyKnife.userData.leftHandle = leftHandleGroup;
 
-            // Manche droit (cyan clair)
+            // Manche droit (bleu clair)
             const rightHandleGroup = new THREE.Group();
-            const rightHandleGeometry = new THREE.BoxGeometry(0.03, 0.25, 0.05);
+            const rightHandleGeometry = new THREE.BoxGeometry(0.02, 0.18, 0.035);
             const rightHandleMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x00ccff,
-                metalness: 0.6,
-                roughness: 0.3
+                color: 0x00aaff,
+                metalness: 0.5,
+                roughness: 0.4
             });
             const rightHandleMain = new THREE.Mesh(rightHandleGeometry, rightHandleMaterial);
             rightHandleMain.castShadow = true;
             rightHandleGroup.add(rightHandleMain);
 
             // Détails manche droit
-            for (let i = 0; i < 4; i++) {
+            const detailMaterial2 = new THREE.MeshStandardMaterial({ 
+                color: 0x0088cc,
+                metalness: 0.6,
+                roughness: 0.3
+            });
+            for (let i = 0; i < 3; i++) {
                 const detail = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.035, 0.04, 0.052),
-                    new THREE.MeshStandardMaterial({ color: 0x0099cc, metalness: 0.7, roughness: 0.2 })
+                    new THREE.BoxGeometry(0.022, 0.03, 0.037),
+                    detailMaterial2
                 );
-                detail.position.y = -0.08 + i * 0.05;
+                detail.position.y = -0.06 + i * 0.06;
                 detail.castShadow = true;
                 rightHandleGroup.add(detail);
             }
 
-            rightHandleGroup.position.set(0.04, -0.35, 0);
+            rightHandleGroup.position.set(0.025, -0.25, 0);
             butterflyKnife.add(rightHandleGroup);
             butterflyKnife.userData.rightHandle = rightHandleGroup;
 
-            // Positionner les couteaux dans le groupe séparé (DEVANT la main)
+            // Positionner les couteaux - bien placés et à bonne taille
             const knifeGroup = rightArm.userData.knifeGroup;
             
-            // Karambit - bien orienté et visible
-            karambitKnife.position.set(0, 0, 0);
-            karambitKnife.rotation.x = Math.PI / 6;
-            karambitKnife.rotation.y = -Math.PI / 8;
-            karambitKnife.rotation.z = Math.PI / 2;
-            karambitKnife.scale.set(1.5, 1.5, 1.5);
+            // Karambit - position naturelle dans la main
+            karambitKnife.position.set(0.05, -0.05, 0);
+            karambitKnife.rotation.x = Math.PI / 4;
+            karambitKnife.rotation.y = -Math.PI / 12;
+            karambitKnife.rotation.z = Math.PI / 2 + Math.PI / 6;
+            karambitKnife.scale.set(1, 1, 1); // Taille normale
             
-            // Papillon - droit devant
-            butterflyKnife.position.set(0, 0, 0);
-            butterflyKnife.rotation.x = Math.PI / 8;
-            butterflyKnife.rotation.y = 0;
+            // Papillon - position droite et élégante
+            butterflyKnife.position.set(-0.02, 0.05, 0);
+            butterflyKnife.rotation.x = Math.PI / 6;
+            butterflyKnife.rotation.y = -Math.PI / 12;
             butterflyKnife.rotation.z = 0;
-            butterflyKnife.scale.set(1.3, 1.3, 1.3);
+            butterflyKnife.scale.set(1, 1, 1); // Taille normale
 
             knifeGroup.add(karambitKnife);
             knifeGroup.add(butterflyKnife);
@@ -639,36 +638,40 @@
 
             // Animation d'inspection
             if (inspectAnim > 0) {
-                currentKnife.rotation.y = Math.sin(inspectAnim * Math.PI) * Math.PI * 2;
+                currentKnife.rotation.y += 0.1; // Rotation continue
                 knifeGroup.rotation.y = Math.sin(inspectAnim * Math.PI) * 0.3;
                 inspectAnim -= 0.015;
                 if (inspectAnim < 0) inspectAnim = 0;
             } else {
-                currentKnife.rotation.y = 0;
                 knifeGroup.rotation.y = 0;
             }
 
             // Animation flip
             if (flipAnim > 0) {
                 const progress = 1 - flipAnim;
-                const baseRotZ = currentKnife === karambitKnife ? Math.PI / 2 : 0;
-                currentKnife.rotation.z = baseRotZ + (progress * Math.PI * 4);
                 
-                currentKnife.position.y = Math.sin(progress * Math.PI) * 0.3;
+                if (currentKnife === karambitKnife) {
+                    currentKnife.rotation.z = (Math.PI / 2 + Math.PI / 6) + (progress * Math.PI * 4);
+                } else {
+                    currentKnife.rotation.z = progress * Math.PI * 4;
+                }
+                
+                currentKnife.position.y = (currentKnife === karambitKnife ? -0.05 : 0.05) + Math.sin(progress * Math.PI) * 0.3;
                 flipAnim -= 0.025;
                 if (flipAnim < 0) flipAnim = 0;
             } else {
                 if (currentKnife === karambitKnife) {
-                    currentKnife.rotation.z = Math.PI / 2;
+                    currentKnife.rotation.z = Math.PI / 2 + Math.PI / 6;
+                    currentKnife.position.y = -0.05;
                 } else {
                     currentKnife.rotation.z = 0;
+                    currentKnife.position.y = 0.05;
                 }
-                currentKnife.position.y = 0;
             }
 
             // Animation papillon (ouverture des manches)
             if (currentKnife === butterflyKnife) {
-                const openAngle = (inspectAnim > 0 || flipAnim > 0) ? Math.PI / 2.5 : 0;
+                const openAngle = (inspectAnim > 0 || flipAnim > 0) ? Math.PI / 2 : 0;
                 butterflyKnife.userData.leftHandle.rotation.x = -openAngle;
                 butterflyKnife.userData.rightHandle.rotation.x = openAngle;
             }
