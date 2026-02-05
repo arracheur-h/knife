@@ -280,6 +280,7 @@
             
             // Stocker la référence de la main
             rightArm.userData.hand = rightHand;
+            rightArm.userData.forearm = rightForearm;
 
             // Bras gauche (plus simple, en arrière)
             const leftArmGeometry = new THREE.BoxGeometry(0.2, 0.6, 0.2);
@@ -291,6 +292,15 @@
             // Positionner le groupe de bras (plus proche et visible)
             armGroup.position.set(0.4, -0.4, -0.8);
             camera.add(armGroup);
+            
+            // Groupe séparé pour les couteaux (DEVANT tout)
+            const knifeGroup = new THREE.Group();
+            knifeGroup.position.set(0.5, -0.65, -1.1);
+            camera.add(knifeGroup);
+            
+            // Stocker la référence du groupe de couteaux
+            rightArm.userData.knifeGroup = knifeGroup;
+            
             scene.add(camera);
         }
 
@@ -463,25 +473,25 @@
             butterflyKnife.add(rightHandleGroup);
             butterflyKnife.userData.rightHandle = rightHandleGroup;
 
-            // Positionner les couteaux dans la main (BIEN VISIBLES devant la caméra)
-            const hand = rightArm.userData.hand;
+            // Positionner les couteaux dans le groupe séparé (DEVANT la main)
+            const knifeGroup = rightArm.userData.knifeGroup;
             
-            // Karambit - bien orienté vers l'avant
-            karambitKnife.position.set(0.05, -0.2, -0.1);
-            karambitKnife.rotation.x = -Math.PI / 6; // Penché vers l'avant
-            karambitKnife.rotation.y = Math.PI / 4; // Légèrement tourné
-            karambitKnife.rotation.z = Math.PI / 2; // Rotation pour orientation correcte
+            // Karambit - bien orienté et visible
+            karambitKnife.position.set(0, 0, 0);
+            karambitKnife.rotation.x = Math.PI / 6;
+            karambitKnife.rotation.y = -Math.PI / 8;
+            karambitKnife.rotation.z = Math.PI / 2;
             karambitKnife.scale.set(1.5, 1.5, 1.5);
             
             // Papillon - droit devant
-            butterflyKnife.position.set(0, -0.2, -0.15);
-            butterflyKnife.rotation.x = -Math.PI / 8; // Légèrement penché
+            butterflyKnife.position.set(0, 0, 0);
+            butterflyKnife.rotation.x = Math.PI / 8;
             butterflyKnife.rotation.y = 0;
             butterflyKnife.rotation.z = 0;
             butterflyKnife.scale.set(1.3, 1.3, 1.3);
 
-            hand.add(karambitKnife);
-            hand.add(butterflyKnife);
+            knifeGroup.add(karambitKnife);
+            knifeGroup.add(butterflyKnife);
             
             currentKnife = karambitKnife;
             butterflyKnife.visible = false;
@@ -604,28 +614,38 @@
             const bobAmount = player.velocity.length();
             rightArm.rotation.x = Math.sin(walkCycle) * bobAmount * 0.5;
             leftArm.rotation.x = -Math.sin(walkCycle) * bobAmount * 0.5;
+            
+            // Faire suivre le groupe de couteaux avec le bras
+            const knifeGroup = rightArm.userData.knifeGroup;
+            knifeGroup.rotation.x = rightArm.rotation.x * 0.5;
 
             // Animation d'attaque
             if (attackAnim > 0) {
                 const progress = 1 - attackAnim;
                 rightArm.rotation.z = Math.sin(progress * Math.PI) * 0.8;
                 rightArm.position.x = 0.4 - Math.sin(progress * Math.PI) * 0.2;
+                
+                knifeGroup.rotation.z = Math.sin(progress * Math.PI) * 0.5;
+                knifeGroup.position.x = 0.5 - Math.sin(progress * Math.PI) * 0.15;
+                
                 attackAnim -= 0.05;
                 if (attackAnim < 0) attackAnim = 0;
             } else {
                 rightArm.rotation.z = 0;
                 rightArm.position.x = 0.4;
+                knifeGroup.rotation.z = 0;
+                knifeGroup.position.x = 0.5;
             }
 
             // Animation d'inspection
             if (inspectAnim > 0) {
                 currentKnife.rotation.y = Math.sin(inspectAnim * Math.PI) * Math.PI * 2;
-                rightArm.rotation.y = Math.sin(inspectAnim * Math.PI) * 0.5;
+                knifeGroup.rotation.y = Math.sin(inspectAnim * Math.PI) * 0.3;
                 inspectAnim -= 0.015;
                 if (inspectAnim < 0) inspectAnim = 0;
             } else {
                 currentKnife.rotation.y = 0;
-                rightArm.rotation.y = 0;
+                knifeGroup.rotation.y = 0;
             }
 
             // Animation flip
@@ -634,18 +654,16 @@
                 const baseRotZ = currentKnife === karambitKnife ? Math.PI / 2 : 0;
                 currentKnife.rotation.z = baseRotZ + (progress * Math.PI * 4);
                 
-                const baseY = currentKnife === karambitKnife ? -0.2 : -0.2;
-                currentKnife.position.y = baseY + Math.sin(progress * Math.PI) * 0.3;
+                currentKnife.position.y = Math.sin(progress * Math.PI) * 0.3;
                 flipAnim -= 0.025;
                 if (flipAnim < 0) flipAnim = 0;
             } else {
                 if (currentKnife === karambitKnife) {
                     currentKnife.rotation.z = Math.PI / 2;
-                    currentKnife.position.y = -0.2;
                 } else {
                     currentKnife.rotation.z = 0;
-                    currentKnife.position.y = -0.2;
                 }
+                currentKnife.position.y = 0;
             }
 
             // Animation papillon (ouverture des manches)
