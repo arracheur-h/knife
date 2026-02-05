@@ -463,19 +463,22 @@
             butterflyKnife.add(rightHandleGroup);
             butterflyKnife.userData.rightHandle = rightHandleGroup;
 
-            // Positionner les couteaux dans la main (bien visibles)
+            // Positionner les couteaux dans la main (BIEN VISIBLES devant la caméra)
             const hand = rightArm.userData.hand;
             
-            karambitKnife.position.set(0, -0.15, 0.05);
-            karambitKnife.rotation.x = Math.PI / 3;
-            karambitKnife.rotation.y = Math.PI / 6;
-            karambitKnife.rotation.z = -Math.PI / 8;
-            karambitKnife.scale.set(1.2, 1.2, 1.2);
+            // Karambit - bien orienté vers l'avant
+            karambitKnife.position.set(0.05, -0.2, -0.1);
+            karambitKnife.rotation.x = -Math.PI / 6; // Penché vers l'avant
+            karambitKnife.rotation.y = Math.PI / 4; // Légèrement tourné
+            karambitKnife.rotation.z = Math.PI / 2; // Rotation pour orientation correcte
+            karambitKnife.scale.set(1.5, 1.5, 1.5);
             
-            butterflyKnife.position.set(0, -0.15, 0.05);
-            butterflyKnife.rotation.x = Math.PI / 3;
+            // Papillon - droit devant
+            butterflyKnife.position.set(0, -0.2, -0.15);
+            butterflyKnife.rotation.x = -Math.PI / 8; // Légèrement penché
+            butterflyKnife.rotation.y = 0;
             butterflyKnife.rotation.z = 0;
-            butterflyKnife.scale.set(1, 1, 1);
+            butterflyKnife.scale.set(1.3, 1.3, 1.3);
 
             hand.add(karambitKnife);
             hand.add(butterflyKnife);
@@ -628,18 +631,21 @@
             // Animation flip
             if (flipAnim > 0) {
                 const progress = 1 - flipAnim;
-                const baseRotZ = currentKnife === karambitKnife ? -Math.PI / 8 : 0;
+                const baseRotZ = currentKnife === karambitKnife ? Math.PI / 2 : 0;
                 currentKnife.rotation.z = baseRotZ + (progress * Math.PI * 4);
-                currentKnife.position.y = -0.15 + Math.sin(progress * Math.PI) * 0.3;
+                
+                const baseY = currentKnife === karambitKnife ? -0.2 : -0.2;
+                currentKnife.position.y = baseY + Math.sin(progress * Math.PI) * 0.3;
                 flipAnim -= 0.025;
                 if (flipAnim < 0) flipAnim = 0;
             } else {
                 if (currentKnife === karambitKnife) {
-                    currentKnife.rotation.z = -Math.PI / 8;
+                    currentKnife.rotation.z = Math.PI / 2;
+                    currentKnife.position.y = -0.2;
                 } else {
                     currentKnife.rotation.z = 0;
+                    currentKnife.position.y = -0.2;
                 }
-                currentKnife.position.y = -0.15;
             }
 
             // Animation papillon (ouverture des manches)
